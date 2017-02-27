@@ -71,31 +71,34 @@ function final_blobs = Test_Templates(name_mask)
     %%Code to change          
 
     %%%People detector output blobs format according to test_DTDP_detector.m from Session1
-    %%Code to change  
-    for l = 1 : length(stats)
-        final_confidence = max(confidence(l, :)); 
-        x1 = floor(stats(l).BoundingBox(1));
-        x2 = x1 + floor(stats(l).BoundingBox(3));
-        y1 = floor(stats(l).BoundingBox(2));
-        y2 = y1 + floor(stats(l).BoundingBox(4));
-        
-        if x1 <= 0
-            x1 = 1;
+    %%Code to change 
+    if length(stats) ~= 0
+        for l = 1 : length(stats)
+            final_confidence = max(confidence(l, :)); 
+            x1 = floor(stats(l).BoundingBox(1));
+            x2 = x1 + floor(stats(l).BoundingBox(3));
+            y1 = floor(stats(l).BoundingBox(2));
+            y2 = y1 + floor(stats(l).BoundingBox(4));
+
+            if x1 <= 0
+                x1 = 1;
+            end
+            if x2 > size(mask_test, 2)
+                x2 = size(mask_test, 2);
+            end
+            if y1 <= 0
+                y1 = 1;
+            end
+            if y2 > size(mask_test, 1)
+                y2 = size(mask_test, 1);
+            end
+            final_blobs(end + 1, :) = [x1, y1, x2, y2, final_confidence]; 
         end
-        if x2 > size(mask_test, 2)
-            x2 = size(mask_test, 2);
-        end
-        if y1 <= 0
-            y1 = 1;
-        end
-        if y2 > size(mask_test, 1)
-            y2 = size(mask_test, 1);
-        end
-        final_blobs(end + 1, :) = [x1, y1, x2, y2, final_confidence]; 
+    
+        % Sorts the final blobs for this frame depending on the confidence.
+        [Y, I] = sort(final_blobs(:, 5), 'descend');
+        final_blobs = final_blobs(I, :);
+        %%%People detector output blobs format according to test_DTDP_detector.m from Session1
+        %%Code to change       
     end
-    % Sorts the final blobs for this frame depending on the confidence.
-    [Y, I] = sort(final_blobs(:, 5), 'descend');
-    final_blobs = final_blobs(I, :);
-    %%%People detector output blobs format according to test_DTDP_detector.m from Session1
-    %%Code to change       
 end  
