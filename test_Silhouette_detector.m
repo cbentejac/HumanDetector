@@ -6,8 +6,8 @@ threshold=0.1;
 video_dir='./Videos';
 video_names={'Sequence1','Sequence2','Sequence3','Sequence4','Sequence5','Sequence6','Sequence7'};
 
-templates_directory = Extract_Templates(video_dir, video_names);
-Process_Templates(video_dir, templates_directory);
+% templates_directory = Extract_Templates(video_dir, video_names);
+% Process_Templates(templates_directory);
 
 % For each video sequence, gets the frames' name and run the silouhette 
 % detector for all the frames of that sequence.

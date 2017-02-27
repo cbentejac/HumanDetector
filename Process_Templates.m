@@ -1,4 +1,4 @@
-function Process_Templates(video_dir, templates_directory)
+function Process_Templates(templates_directory)
     % Selects the folders of the input videos/templates and 
     % creates "Templates_test".  
     final_templates_directory='.\Templates_test';
@@ -33,8 +33,8 @@ function Process_Templates(video_dir, templates_directory)
         mask = imread(name_mask);
 
         size_tmp = size(mask);
-        if abs(size_tmp(1) - size_cur(1)) > 5 || ...
-                abs(size_tmp(2) - size_cur(2)) > 5
+        if abs(size_tmp(1) - size_cur(1)) > 7 || ...
+                abs(size_tmp(2) - size_cur(2)) > 7
             chosen_templates(end + 1) = j - 2;
         end
         size_cur = size_tmp;
