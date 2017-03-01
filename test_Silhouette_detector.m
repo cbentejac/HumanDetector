@@ -8,7 +8,7 @@ video_names={'Sequence1','Sequence2','Sequence3','Sequence4','Sequence5','Sequen
 
 % templates_directory = Extract_Templates(video_dir, video_names);
 % Process_Templates(templates_directory);
-
+disp(datestr(now));
 % For each video sequence, gets the frames' name and run the silouhette 
 % detector for all the frames of that sequence.
 for i=1:size(video_names,2)
@@ -31,5 +31,4 @@ for i=1:size(video_names,2)
     fclose(fid);    
     Silhouette_detector(images_names,threshold,video_names{i},video_dir);  
 end
-
-
+disp(datestr(now));
