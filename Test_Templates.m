@@ -1,12 +1,12 @@
-function final_blobs = Test_Templates(name_mask)
+function final_blobs = Test_Templates(name_mask, threshold)
 
-    templates_directory='Templates_test';
+    templates_directory = 'Templates_test';
 
     % Creates the corresponsing cd commands.
-    dir=sprintf('cd ''%s''',pwd);
-    templates_dir=sprintf('cd %s/',templates_directory);
+    dir = sprintf('cd ''%s''', pwd);
+    templates_dir = sprintf('cd %s/', templates_directory);
     eval(templates_dir);
-    number_templates=ls;
+    number_templates = ls;
     eval (dir);
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -51,7 +51,8 @@ function final_blobs = Test_Templates(name_mask)
                 % Gets the extrema of the correlation between the template 
                 % and the object (and handles the case where the
                 % coordinates are 0, since we're in MATLAB).
-                correlation = filter2(mask_test(x1 : x1 + width, y1 : y1 + height), template);
+                correlation = filter2(mask_test(x1 : x1 + width, ...
+                    y1 : y1 + height), template);
                 xymax = extrema2(correlation);
 
                 % Store the maxima for the correlation between each
@@ -72,7 +73,7 @@ function final_blobs = Test_Templates(name_mask)
 
     %%%People detector output blobs format according to test_DTDP_detector.m from Session1
     %%Code to change 
-    if length(stats) ~= 0
+    if isempty(stats) == 0
         for l = 1 : length(stats)
             final_confidence = max(confidence(l, :)); 
             x1 = floor(stats(l).BoundingBox(1));
@@ -95,9 +96,13 @@ function final_blobs = Test_Templates(name_mask)
             final_blobs(end + 1, :) = [x1, y1, x2, y2, final_confidence]; 
         end
     
+        % Drops the blobs whose confidence value is below a threhsold.         
+        thresholding = final_blobs(:, 5) > threshold;
+        final_blobs = final_blobs(thresholding, :);
         % Sorts the final blobs for this frame depending on the confidence.
         [Y, I] = sort(final_blobs(:, 5), 'descend');
         final_blobs = final_blobs(I, :);
+        
         %%%People detector output blobs format according to test_DTDP_detector.m from Session1
         %%Code to change       
     end

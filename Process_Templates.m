@@ -10,7 +10,7 @@ function Process_Templates(templates_directory)
     eval(templates_dir);
     number_masks=ls;
     eval (dir);
-    ratio_values=[];
+    ratio_values = [];
 
     % Selects the useful templates.
      %%%Object extraction code
