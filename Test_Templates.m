@@ -1,14 +1,6 @@
-function final_blobs = Test_Templates(name_mask, threshold)
+function final_blobs = Test_Templates(name_mask, threshold, mask_template)
 
-    templates_directory = 'Templates_test';
-
-    % Creates the corresponsing cd commands.
-    dir = sprintf('cd ''%s''', pwd);
-    templates_dir = sprintf('cd %s/', templates_directory);
-    eval(templates_dir);
-    number_templates = ls;
-    eval (dir);
-
+    
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % % % PART 1: OBJECT EXTRACTION
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -31,6 +23,9 @@ function final_blobs = Test_Templates(name_mask, threshold)
         height = floor(stats(l).BoundingBox(3));
         width = floor(stats(l).BoundingBox(4));
                 
+        area_object = area(l).Area(1) / (height * width);
+        bool_area = area_object > 0.1 && area_object < 0.85;
+              
         if x1 <= 0
             x1 = 1;
         end
@@ -41,30 +36,21 @@ function final_blobs = Test_Templates(name_mask, threshold)
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         % % % PART 2: SILOUHETTE MATCHING & CONFIDENCE
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        if ~(width < 30 || height < 30)
-            for k = 3 : size(number_templates, 1)
-                name_template = sprintf('%s/template%.4d.png', templates_directory, k - 2);
-                mask_template = imread(name_template);
+        if width >= 30 && height >= 30 && bool_area               
                 
                 template = mask_template / sum(sum(mask_template));
-               
+                mask = mask_test;
                 % Gets the extrema of the correlation between the template 
                 % and the object (and handles the case where the
                 % coordinates are 0, since we're in MATLAB).
-                correlation = filter2(mask_test(x1 : x1 + width, ...
+                correlation = filter2(mask(x1 : x1 + width, ...
                     y1 : y1 + height), template);
-                xymax = extrema2(correlation);
+                xymax = max(max(correlation));
 
-                % Store the maxima for the correlation between each
-                % template and the current object.
-                if ~(isempty(xymax))
-                    confidence(l, k - 2) = max(xymax);
-                else
-                    confidence(l, k - 2) = 0;
-                end 
-            end
+                confidence(l) = xymax;
+            
         else
-            confidence(l, :) = 0;
+            confidence(l) = 0;
         end
 
     end
@@ -75,7 +61,7 @@ function final_blobs = Test_Templates(name_mask, threshold)
     %%Code to change 
     if isempty(stats) == 0
         for l = 1 : length(stats)
-            final_confidence = max(confidence(l, :)); 
+            final_confidence = confidence(l); 
             x1 = floor(stats(l).BoundingBox(1));
             x2 = x1 + floor(stats(l).BoundingBox(3));
             y1 = floor(stats(l).BoundingBox(2));
@@ -100,7 +86,7 @@ function final_blobs = Test_Templates(name_mask, threshold)
         thresholding = final_blobs(:, 5) > threshold;
         final_blobs = final_blobs(thresholding, :);
         % Sorts the final blobs for this frame depending on the confidence.
-        [Y, I] = sort(final_blobs(:, 5), 'descend');
+        [~, I] = sort(final_blobs(:, 5), 'descend');
         final_blobs = final_blobs(I, :);
         
         %%%People detector output blobs format according to test_DTDP_detector.m from Session1
